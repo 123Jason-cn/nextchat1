@@ -34,6 +34,7 @@ import ConfirmIcon from "../icons/confirm.svg";
 import CloseIcon from "../icons/close.svg";
 import CancelIcon from "../icons/cancel.svg";
 import ImageIcon from "../icons/image.svg";
+import HomeIcon from "../icons/home.svg"
 
 import LightIcon from "../icons/light.svg";
 import DarkIcon from "../icons/dark.svg";
@@ -125,6 +126,7 @@ import { getModelProvider } from "../utils/model";
 import { RealtimeChat } from "@/app/components/realtime-chat";
 import clsx from "clsx";
 import { getAvailableClientsCount, isMcpEnabled } from "../mcp/actions";
+import { any } from "zod";
 
 const localStorage = safeLocalStorage();
 
@@ -133,6 +135,44 @@ const ttsPlayer = createTTSPlayer();
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
+
+let isMiniFlg = false;
+
+// 获取url上的source参数
+const urlParams = new URLSearchParams(window.location.search);
+const source = urlParams.get('source');
+console.log('source:', window.location.search, source);
+
+if (source == 'mini') {
+  isMiniFlg = true
+}
+
+const ChatComponent = () => {
+  return (
+    <IconButton
+      icon={<HomeIcon />}
+      bordered
+      title={Locale.Chat.Actions.Export}
+      onClick={() => {
+        console.log('首页点击了', window.tt);
+
+        const h5Manager = window.tt.miniProgram.createMessageManager();
+
+        h5Manager.transferMessage({
+          data: {
+            "test": "b"
+          },
+          success: (res: any) => {
+              console.log(res)
+          },
+          fail: (error: any) => {
+              console.log(error)
+          }
+        })
+      }}
+    />
+  )
+}
 
 const MCPAction = () => {
   const navigate = useNavigate();
@@ -613,7 +653,7 @@ export function ChatActions(props: {
             icon={<BottomIcon />}
           />
         )}
-        {props.hitBottom && (
+        {!isMiniFlg && props.hitBottom && (
           <ChatAction
             onClick={props.showPromptModal}
             text={Locale.Chat.InputActions.Settings}
@@ -628,21 +668,25 @@ export function ChatActions(props: {
             icon={props.uploading ? <LoadingButtonIcon /> : <ImageIcon />}
           />
         )}
-        <ChatAction
-          onClick={nextTheme}
-          text={Locale.Chat.InputActions.Theme[theme]}
-          icon={
-            <>
-              {theme === Theme.Auto ? (
-                <AutoIcon />
-              ) : theme === Theme.Light ? (
-                <LightIcon />
-              ) : theme === Theme.Dark ? (
-                <DarkIcon />
-              ) : null}
-            </>
-          }
-        />
+        
+        {!isMiniFlg && (
+          <ChatAction
+            onClick={nextTheme}
+            text={Locale.Chat.InputActions.Theme[theme]}
+            icon={
+              <>
+                {theme === Theme.Auto ? (
+                  <AutoIcon />
+                ) : theme === Theme.Light ? (
+                  <LightIcon />
+                ) : theme === Theme.Dark ? (
+                  <DarkIcon />
+                ) : null}
+              </>
+            }
+          />
+        )}
+        
 
         <ChatAction
           onClick={props.showPromptHints}
@@ -840,6 +884,37 @@ export function ChatActions(props: {
             onClick={() => props.setShowChatSidePanel(true)}
             text={"Realtime Chat"}
             icon={<HeadphoneIcon />}
+          />
+        )}
+
+        {/* test */}
+        { isMiniFlg && (
+          <ChatAction
+            onClick={() => navigate(Path.Home)}
+            text={Locale.Chat.Actions.ChatList}
+            icon={<ReturnIcon />}
+          />
+        )}
+
+        { isMiniFlg && (
+          <ChatAction
+            text=""
+            icon={<HomeIcon />}
+            onClick={() => {
+              const h5Manager = window.tt.miniProgram.createMessageManager();
+
+              h5Manager.transferMessage({
+                data: {
+                  "form": "mini"
+                },
+                success: (res: any) => {
+                    console.log(res)
+                },
+                fail: (error: any) => {
+                    console.log(error)
+                }
+              })
+            }}
           />
         )}
       </div>
@@ -1690,88 +1765,100 @@ function _Chat() {
   return (
     <>
       <div className={styles.chat} key={session.id}>
-        <div className="window-header" data-tauri-drag-region>
-          {isMobileScreen && (
-            <div className="window-actions">
-              <div className={"window-action-button"}>
-                <IconButton
-                  icon={<ReturnIcon />}
-                  bordered
-                  title={Locale.Chat.Actions.ChatList}
-                  onClick={() => navigate(Path.Home)}
-                />
-              </div>
-            </div>
-          )}
-
-          <div
-            className={clsx("window-header-title", styles["chat-body-title"])}
-          >
-            <div
-              className={clsx(
-                "window-header-main-title",
-                styles["chat-body-main-title"],
-              )}
-              onClickCapture={() => setIsEditingMessage(true)}
-            >
-              {!session.topic ? DEFAULT_TOPIC : session.topic}
-            </div>
-            <div className="window-header-sub-title">
-              {Locale.Chat.SubTitle(session.messages.length)}
-            </div>
-          </div>
-          <div className="window-actions">
-            <div className="window-action-button">
-              <IconButton
-                icon={<ReloadIcon />}
-                bordered
-                title={Locale.Chat.Actions.RefreshTitle}
-                onClick={() => {
-                  showToast(Locale.Chat.Actions.RefreshToast);
-                  chatStore.summarizeSession(true, session);
-                }}
-              />
-            </div>
-            {!isMobileScreen && (
-              <div className="window-action-button">
-                <IconButton
-                  icon={<RenameIcon />}
-                  bordered
-                  title={Locale.Chat.EditMessage.Title}
-                  aria={Locale.Chat.EditMessage.Title}
-                  onClick={() => setIsEditingMessage(true)}
-                />
+        { !isMiniFlg && (
+          <div className="window-header" data-tauri-drag-region>
+            { isMobileScreen && (
+              <div className="window-actions">
+                <div className={"window-action-button"}>
+                  <IconButton
+                    icon={<ReturnIcon />}
+                    bordered
+                    title={Locale.Chat.Actions.ChatList}
+                    onClick={() => navigate(Path.Home)}
+                  />
+                </div>
               </div>
             )}
-            <div className="window-action-button">
-              <IconButton
-                icon={<ExportIcon />}
-                bordered
-                title={Locale.Chat.Actions.Export}
-                onClick={() => {
-                  setShowExport(true);
-                }}
-              />
+
+            <div
+              className={clsx("window-header-title", styles["chat-body-title"])}
+            >
+              <div
+                className={clsx(
+                  "window-header-main-title",
+                  styles["chat-body-main-title"],
+                )}
+                onClickCapture={() => setIsEditingMessage(true)}
+              >
+                {!session.topic ? DEFAULT_TOPIC : session.topic}
+              </div>
+              <div className="window-header-sub-title">
+                {Locale.Chat.SubTitle(session.messages.length)}
+              </div>
             </div>
-            {/**showMaxIcon && (
+            <div className="window-actions">
               <div className="window-action-button">
                 <IconButton
-                  icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                  icon={<ReloadIcon />}
                   bordered
-                  title={Locale.Chat.Actions.FullScreen}
-                  aria={Locale.Chat.Actions.FullScreen}
-                  onClick={screenBtnClick}
+                  title={Locale.Chat.Actions.RefreshTitle}
+                  onClick={() => {
+                    showToast(Locale.Chat.Actions.RefreshToast);
+                    chatStore.summarizeSession(true, session);
+                  }}
                 />
               </div>
-            )**/}
-          </div>
+              {!isMobileScreen && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={<RenameIcon />}
+                    bordered
+                    title={Locale.Chat.EditMessage.Title}
+                    aria={Locale.Chat.EditMessage.Title}
+                    onClick={() => setIsEditingMessage(true)}
+                  />
+                </div>
+              )}
+              <div className="window-action-button">
+                <IconButton
+                  icon={<ExportIcon />}
+                  bordered
+                  title={Locale.Chat.Actions.Export}
+                  onClick={() => {
+                    setShowExport(true);
+                  }}
+                />
 
-          <PromptToast
-            showToast={!hitBottom}
-            showModal={showPromptModal}
-            setShowModal={setShowPromptModal}
-          />
-        </div>
+                {/* { isMiniFlg ? <ChatComponent/> : <IconButton
+                    icon={<ExportIcon />}
+                    bordered
+                    title={Locale.Chat.Actions.Export}
+                    onClick={() => {
+                      setShowExport(true);
+                    }}
+                  /> 
+                } */}
+              </div>
+              {/**showMaxIcon && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                    bordered
+                    title={Locale.Chat.Actions.FullScreen}
+                    aria={Locale.Chat.Actions.FullScreen}
+                    onClick={screenBtnClick}
+                  />
+                </div>
+              )**/}
+            </div>
+
+            <PromptToast
+              showToast={!hitBottom}
+              showModal={showPromptModal}
+              setShowModal={setShowPromptModal}
+            />
+          </div>
+        )}
         <div className={styles["chat-main"]}>
           <div className={styles["chat-body-container"]}>
             <div
