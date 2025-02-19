@@ -147,33 +147,6 @@ if (source == 'mini') {
   isMiniFlg = true
 }
 
-const ChatComponent = () => {
-  return (
-    <IconButton
-      icon={<HomeIcon />}
-      bordered
-      title={Locale.Chat.Actions.Export}
-      onClick={() => {
-        console.log('首页点击了', window.tt);
-
-        const h5Manager = window.tt.miniProgram.createMessageManager();
-
-        h5Manager.transferMessage({
-          data: {
-            "test": "b"
-          },
-          success: (res: any) => {
-              console.log(res)
-          },
-          fail: (error: any) => {
-              console.log(error)
-          }
-        })
-      }}
-    />
-  )
-}
-
 const MCPAction = () => {
   const navigate = useNavigate();
   const [count, setCount] = useState<number>(0);
@@ -439,6 +412,36 @@ function ClearContextDivider() {
       </div>
     </div>
   );
+}
+
+export function SpecialAction(props: {
+  text: string;
+  onClick: () => void;
+}) {
+  const textRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState({
+    full: 16,
+    icon: 48,
+  });
+
+  return (
+    <div
+      className={clsx(styles["chat-input-action"], "clickable")}
+      onClick={() => {
+        props.onClick();
+      }}
+      style={
+        {
+          "--icon-width": `${width.icon}px`,
+          "--full-width": `${width.full}px`,
+        } as React.CSSProperties
+      }
+    >
+      <div ref={textRef} className={styles["icon"]}>
+        {props.text}
+      </div>
+    </div>
+  )
 }
 
 export function ChatAction(props: {
@@ -877,6 +880,14 @@ export function ChatActions(props: {
           />
         )}
         {!isMobileScreen && <MCPAction />}
+
+        { isMiniFlg && (
+          <SpecialAction
+            onClick={() => navigate(Path.Home)}
+            // text={Locale.Chat.Actions.ChatList}
+            text="返回列表"
+          />
+        )}
       </>
       <div className={styles["chat-input-actions-end"]}>
         {config.realtimeConfig.enable && (
@@ -888,18 +899,9 @@ export function ChatActions(props: {
         )}
 
         {/* test */}
-        { isMiniFlg && (
-          <ChatAction
-            onClick={() => navigate(Path.Home)}
-            text={Locale.Chat.Actions.ChatList}
-            icon={<ReturnIcon />}
-          />
-        )}
-
-        { isMiniFlg && (
-          <ChatAction
-            text=""
-            icon={<HomeIcon />}
+        { false && (
+          <SpecialAction
+            text="返回OA"
             onClick={() => {
               const h5Manager = window.tt.miniProgram.createMessageManager();
 
@@ -1828,16 +1830,6 @@ function _Chat() {
                     setShowExport(true);
                   }}
                 />
-
-                {/* { isMiniFlg ? <ChatComponent/> : <IconButton
-                    icon={<ExportIcon />}
-                    bordered
-                    title={Locale.Chat.Actions.Export}
-                    onClick={() => {
-                      setShowExport(true);
-                    }}
-                  /> 
-                } */}
               </div>
               {/**showMaxIcon && (
                 <div className="window-action-button">
