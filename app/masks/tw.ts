@@ -4,6 +4,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f5bc-fe0f",
     name: "以文搜圖",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "text-to-pic-0",
@@ -49,6 +50,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f638",
     name: "文案寫手",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "writer-0",
@@ -75,6 +77,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f978",
     name: "機器學習",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "ml-0",
@@ -101,6 +104,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f69b",
     name: "後勤工作",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "work-0",
@@ -127,6 +131,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f469-200d-1f4bc",
     name: "職業顧問",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "cons-0",
@@ -153,6 +158,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f9d1-200d-1f3eb",
     name: "英專寫手",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "trans-0",
@@ -179,6 +185,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f4da",
     name: "語言檢測器",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "lang-0",
@@ -205,6 +212,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f4d5",
     name: "小紅書寫手",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "red-book-0",
@@ -231,6 +239,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f4d1",
     name: "簡歷寫手",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "cv-0",
@@ -263,6 +272,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f469-200d-2695-fe0f",
     name: "心理醫生",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "doctor-0",
@@ -289,6 +299,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f4b8",
     name: "創業點子王",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "idea-0",
@@ -322,6 +333,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "270d-fe0f",
     name: "網際網路寫手",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "net-0",
@@ -355,6 +367,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f63e",
     name: "心靈導師",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "mentor-0",
@@ -413,6 +426,7 @@ export const TW_MASKS: BuiltinMask[] = [
   {
     avatar: "1f513",
     name: "越獄模式 [Jailbreak]",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "jb-0",

@@ -57,6 +57,7 @@
     margin-bottom: 2vh;
     animation: slide-in ease 0.45s;
     display: flex;
+    align-items: center;
     justify-content: center;
     font-size: 12px;
 
@@ -71,6 +72,8 @@
     overflow: auto;
     align-items: center;
     padding-top: 20px;
+    display: flex;
+    flex-direction: column;
 
     $linear: linear-gradient(
       to bottom,
@@ -79,19 +82,28 @@
       rgba(0, 0, 0, 0)
     );
 
-    -webkit-mask-image: $linear;
-    mask-image: $linear;
+    // 添加渐变遮罩
+    // -webkit-mask-image: $linear;
+    // mask-image: $linear;
 
     animation: slide-in ease 0.5s;
 
     .mask-row {
       display: flex;
-      // justify-content: center;
+      flex-wrap: wrap; // 允许换行
+      justify-content: center; // 水平居中
       margin-bottom: 10px;
+      padding: 0 10px; // 添加内边距
+      width: 100%;
+      max-width: 1200px; // 限制最大宽度
+      margin-left: auto; // 水平居中
+      margin-right: auto; // 水平居中
 
       @for $i from 1 to 10 {
         &:nth-child(#{$i * 2}) {
-          margin-left: 50px;
+          margin-left: auto; // 修改为自动边距以保持居中
+          margin-right: auto;
+          padding-left: 50px; // 保持原来的左侧偏移效果
         }
       }
 
@@ -104,7 +116,8 @@
         background-color: var(--white);
         border-radius: 10px;
         margin-right: 10px;
-        max-width: 8em;
+        margin-bottom: 10px; // 添加底部间距
+        // max-width: 8em;
         transform: scale(1);
         cursor: pointer;
         transition: all ease 0.3s;
@@ -119,6 +132,35 @@
           margin-left: 10px;
           font-size: 14px;
         }
+      }
+    }
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+    // margin-bottom: 20px;
+    
+    .tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background-color: rgba(0, 0, 0, 0.05);
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      
+      &.active {
+        background-color: #10a37f;
+        color: white;
       }
     }
   }

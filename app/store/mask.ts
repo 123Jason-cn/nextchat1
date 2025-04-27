@@ -20,6 +20,7 @@ export type Mask = {
   plugin?: string[];
   enableArtifacts?: boolean;
   enableCodeFold?: boolean;
+  modelType?: 'SYSTEM' | 'MCN';
 };
 
 export const DEFAULT_MASK_STATE = {
@@ -44,6 +45,7 @@ export const createEmptyMask = () =>
     builtin: false,
     createdAt: Date.now(),
     plugin: [],
+    modelType: 'SYSTEM',
   }) as Mask;
 
 export const useMaskStore = createPersistStore(

@@ -4,6 +4,7 @@ export const EN_MASKS: BuiltinMask[] = [
   {
     avatar: "1f47e",
     name: "GitHub Copilot",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "Copilot-0",
@@ -30,6 +31,7 @@ export const EN_MASKS: BuiltinMask[] = [
   {
     avatar: "1f916",
     name: "Prompt Improvement",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "prompt-improve-0",
@@ -76,6 +78,7 @@ export const EN_MASKS: BuiltinMask[] = [
   {
     avatar: "2328-fe0f",
     name: "CAN",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "can-0",
@@ -102,6 +105,7 @@ export const EN_MASKS: BuiltinMask[] = [
   {
     avatar: "1f60e",
     name: "Expert",
+    modelType: 'SYSTEM',
     context: [
       {
         id: "expert-0",
