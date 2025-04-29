@@ -551,7 +551,6 @@ export const CN_MASKS: BuiltinMask[] = [
     builtin: true,
     createdAt: 1688899480537,
   },
-
   {
     avatar: "1f47e",
     name: "小红书审核建议",
@@ -590,7 +589,7 @@ export const CN_MASKS: BuiltinMask[] = [
       {
         id: "test-1",
         role: "assistant",
-        content: `请在对话框中填写您内容脚本或文案`,
+        content: `请在对话框中填写您的内容脚本或文案`,
         date: "",
       },
     ],
@@ -653,5 +652,151 @@ export const CN_MASKS: BuiltinMask[] = [
     builtin: true,
     createdAt: 1690000000000,
   },
+  {
+    avatar: "1f4d5",
+    name: "小红书脚本生成文案",
+    modelType: 'MCN',
+    context: [
+      {
+        id: "script-0",
+        role: "user",
+        content: `你是一位深谙小红书爆款逻辑的资深内容策划专家，通过个人的表述（就像和姐妹聊天一样），按以下框架生成一篇该脚本的小红书笔记的正文部分(不需要标题，300字以内)：
+结构要素：
+痛点共鸣：放大特定人群的使用场景痛点（油皮/晒后/脱毛/脱妆）
+产品核心：突出技术卖点（成分/专利/特殊质地）+数据支撑
+对比体验：强烈前后对比+具象化描述（吸油纸测试/粉底换色号）
+使用场景：绑定特定情境（熬夜/旅行/漫展/早八）
+背书技巧：身份代入（油敏肌/打工人/coser）+周期见证（半个月/两周测试）
+情感表达：表情符号穿插+网络热词（焊在脸上/按头安利）
 
+语言风格：
+口语化短句+感叹句式
+行业黑话+专业术语结合（细胞外基质/SHR技术）
+场景化比喻（猪刚鬣/焦糖饼干/水煮蛋）
+行动号召词（冲/锁死/必带）
+埋梗造词（牛马秒变韩系女神/卡颜局自救）
+Emoji使用（emoji表情要和内容相吻合，不吻合的不要强加emoji，避免滥用）
+传播金句（多使用金句，如：没有醒不来的早晨，只有不敢醒的人生）
+文字控制（不要出现非中文或英文的文字）
+
+话题标签：
+三级火箭式标签：核心词、痛点、方案
+流量叠加标签：情绪词、人群定位、核心功能、热搜话题`,
+        date: "",
+      },
+      {
+        id: "script-1",
+        role: "assistant",
+        content: `请在对话框中填写您的内容脚本`,    
+        date: "",
+      }
+    ],
+    modelConfig: {
+      model: "deepseek-r1",
+      temperature: 1,
+      max_tokens: 2000,
+      presence_penalty: 0,
+      frequency_penalty: 0,
+      sendMemory: true,
+      historyMessageCount: 4,
+      compressMessageLengthThreshold: 1000,
+    },
+    lang: "cn",
+    builtin: true,
+    createdAt: 1690000000000,
+  },
+  {
+    avatar: "1f4da",
+    name: "小红书脚本生成标题",
+    modelType: 'MCN',
+    context: [
+      {
+        id: "title-0",
+        role: "user",
+        content: `根据小红书正文内容生成5个小红书标题，标题要吸睛且贴合小红书正文内容，文字加emoji（非必要，根据情况使用）不要超过20字。
+【参考标题示例】
+- 眼霜不是智商税，只是你不会正确涂眼霜！
+- 夏日穿搭避雷💣斜方肌手臂粗上衣怎么挑？
+- 姐妹最懂姐妹‼️春夏口红试色来咯~
+- 森系踏青妆|自带江南烟雨的氛围感🍃
+- 环球影城攻略㊙️避坑/项目推荐/拍照打卡
+- 妆前妆后|每个女孩都有可能💜
+- 提前替姐妹们踩雷了！这些防尴尬神器别买！
+- 我的Tony说，夏天染这几个颜色绝美不出错~
+- 百万博主爱用好物大揭秘💥已经被种草到了
+- 音乐节主打妆备|没有辣妹能拒绝这3款发型！
+
+【标题公式】
+- 痛点+解决方案："（人群）不会XX？手把手教你XX！"
+- 热点+本地化："XX城市新晋XX！居然把XX搬来"
+- 教程分层："（时间/场景）第X课之【核心问题】"
+- 对比冲突："XX前vs后|同一个XX的不同效果"
+- 福利攻略："XX自由攻略！XXX技巧速存"
+
+【优化技巧】
+- emoji非必要，根据情况使用
+- emoji要和标题相关（例：📷✨），注意emoji在标题中的位置，不要滥用emoji
+- 结合地域热点（长沙/湘菜/大围山）
+- 制造紧迫感（大数据快推/现在知道还不晚）
+- 口语化提问（XX你真的会吗？/谁还没试过）`,
+        date: "",
+      },
+      {
+        id: "title-1",
+        role: "assistant",
+        content: `请在对话框中填写您的文案`,
+        date: "",
+      }
+    ],
+    modelConfig: {
+      model: "deepseek-r1",
+      temperature: 1,
+      max_tokens: 2000,
+      presence_penalty: 0,
+      frequency_penalty: 0,
+      sendMemory: true,
+      historyMessageCount: 4,
+      compressMessageLengthThreshold: 1000,
+    },
+    lang: "cn",
+    builtin: true,
+    createdAt: 1690000000000,
+  },
+  {
+    avatar: "270d-fe0f",
+    name: "小红书脚本生成评论",
+    modelType: 'MCN',
+    context: [
+      {
+        id: "comment-0",
+        role: "user",
+        content: `你是一位深谙小红书爆款逻辑的资深内容策划专家，从青少年的口吻进行互动，按以下框架生成50条小红书笔记的评论，不要出现负面内容，每条评论不超过15字：
+- 夸博主（账号名称：池阿茶（新婚版））
+- 询问（价格、购买渠道、适用性、功效、使用感受、口碑）
+- 谈感受（心动、爱了、好用、优点、需要、认同博主）
+- 表意向（购买、分享、用途）
+- 表态度（支持、认同、惊讶、期待）`,
+        date: "",
+      },
+      {
+        id: "comment-1",
+        role: "assistant",
+        content: `请在对话框中填写您的文案`,
+        date: "",
+      }
+    ],
+    modelConfig: {
+      model: "deepseek-r1",
+      temperature: 1,
+      max_tokens: 2000,
+      presence_penalty: 0,
+      frequency_penalty: 0,
+      sendMemory: true,
+      historyMessageCount: 4,
+      compressMessageLengthThreshold: 1000,
+    },
+    lang: "cn",
+    builtin: true,
+    createdAt: 1690000000000,
+  }
 ];
