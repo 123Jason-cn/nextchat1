@@ -12,13 +12,15 @@ import { useChatStore } from "../store";
 
 import Locale from "../locales";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Path } from "../constant";
+import { Path, ServiceProvider } from "../constant";
 import { MaskAvatar } from "./mask";
 import { Mask } from "../store/mask";
 import { useRef, useEffect } from "react";
 import { showConfirm } from "./ui-lib";
 import { useMobileScreen } from "../utils";
+import { nanoid } from "nanoid";
 import clsx from "clsx";
+import { useAppConfig } from "../store/config";
 
 export function ChatItem(props: {
   onClick?: () => void;
@@ -130,6 +132,95 @@ export function ChatList(props: { narrow?: boolean }) {
 
     moveSession(source.index, destination.index);
   };
+
+  let count = 0;
+
+  window.parent.postMessage({
+    chat_done: true
+  }, '*');
+
+  window.onmessage = (event) => {
+    console.log('list onmessage ', event);
+    if (event.data.isChatList && count === 0) {
+      // let isHaveTitleChat = false; // 是否存在指定标题的聊天
+      // let chatIndex = 0;
+
+      // sessions.forEach((item, index) => {
+      //   if (item.topic === event.data.name) {
+      //     isHaveTitleChat = true;
+      //     chatIndex = index;
+      //   }
+      // })
+
+      // // 没有，就去新建一个聊天
+      // if (!isHaveTitleChat) {
+        
+      // } else {
+      //   navigate(Path.Chat);
+      //   selectSession(chatIndex);
+      // }
+
+      navigate(Path.NewChat);
+
+      const startChat = (mask?: Mask) => {
+        setTimeout(() => {
+          chatStore.newSession(mask);
+          navigate(Path.Chat);
+        }, 10);
+      };
+
+      startChat({
+        id: nanoid(),
+        avatar: "1f638",
+        name: event.data.name,
+        modelType: 'MCN',
+        context: [
+          {
+            id: "is_hidden_msg",
+            role: "user",
+            content: event.data.prompt,
+            date: "",
+          },
+          {
+            id: "is_hidden_msg",
+            role: "assistant",
+            content: event.data.desc,
+            date: "",
+          },
+          {
+            id: "pain-1",
+            role: "assistant",
+            content: '我是你的 AI 助手。关于这个文件，有什么问题都可以问我！',
+            date: "",
+          }
+        ],
+        modelConfig: {
+          model: "gemini-2.5-flash",
+          providerName: ServiceProvider.Google,
+          temperature: 1,
+          max_tokens: 2000,
+          presence_penalty: 0,
+          frequency_penalty: 0,
+          sendMemory: true,
+          historyMessageCount: 4,
+          compressMessageLengthThreshold: 1000,
+          top_p: useAppConfig.getState().modelConfig.top_p,
+          compressModel: useAppConfig.getState().modelConfig.compressModel,
+          compressProviderName: useAppConfig.getState().modelConfig.compressProviderName,
+          enableInjectSystemPrompts: useAppConfig.getState().modelConfig.enableInjectSystemPrompts,
+          template: useAppConfig.getState().modelConfig.template,
+          size: useAppConfig.getState().modelConfig.size,
+          quality: useAppConfig.getState().modelConfig.quality,
+          style: useAppConfig.getState().modelConfig.style,
+        },
+        lang: "cn",
+        builtin: true,
+        createdAt: 1688899480537,
+      });
+    }
+
+    count = 1;
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>

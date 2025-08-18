@@ -1882,9 +1882,12 @@ function _Chat() {
                     <Fragment key={message.id}>
                       <div
                         className={
-                          isUser
-                            ? styles["chat-message-user"]
-                            : styles["chat-message"]
+                          [
+                            isUser
+                              ? styles["chat-message-user"]
+                              : styles["chat-message"],
+                            message.id === 'is_hidden_msg' ? styles['chat-message-user-hidden'] : ''
+                          ].join(' ')
                         }
                       >
                         <div className={styles["chat-message-container"]}>
