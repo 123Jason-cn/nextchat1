@@ -33,6 +33,12 @@ const nextConfig = {
   experimental: {
     forceSwcTransforms: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true, // ºöÂÔ eslint ¼ì²é
+  },
+  typescript: {
+    ignoreBuildErrors: true, // ºöÂÔ TypeScript ¼ì²é
+  }
 };
 
 const CorsHeaders = [

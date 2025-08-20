@@ -142,24 +142,6 @@ export function ChatList(props: { narrow?: boolean }) {
   window.onmessage = (event) => {
     console.log('list onmessage ', event);
     if (event.data.isChatList && count === 0) {
-      // let isHaveTitleChat = false; // 是否存在指定标题的聊天
-      // let chatIndex = 0;
-
-      // sessions.forEach((item, index) => {
-      //   if (item.topic === event.data.name) {
-      //     isHaveTitleChat = true;
-      //     chatIndex = index;
-      //   }
-      // })
-
-      // // 没有，就去新建一个聊天
-      // if (!isHaveTitleChat) {
-        
-      // } else {
-      //   navigate(Path.Chat);
-      //   selectSession(chatIndex);
-      // }
-
       navigate(Path.NewChat);
 
       const startChat = (mask?: Mask) => {
@@ -169,54 +151,145 @@ export function ChatList(props: { narrow?: boolean }) {
         }, 10);
       };
 
-      startChat({
-        id: nanoid(),
-        avatar: "1f638",
-        name: event.data.name,
-        modelType: 'MCN',
-        context: [
-          {
-            id: "is_hidden_msg",
-            role: "user",
-            content: event.data.prompt,
-            date: "",
+      const chatRoomId = nanoid();
+
+      // 视频
+      if (event.data.isVideo) {
+        const chatRoomVideoInfo = localStorage.getItem('chatRoomVideoInfo');
+
+        if (chatRoomVideoInfo) {
+          const params = JSON.parse(chatRoomVideoInfo);
+          params[chatRoomId] = {
+            videoUrl: event.data.videoUrl
+          };
+
+          localStorage.setItem('chatRoomVideoInfo', JSON.stringify(params));
+        } else {
+          const params: { [key: string]: { videoUrl: string } } = {};
+
+          params[chatRoomId] = {
+            videoUrl: event.data.videoUrl
+          };
+
+          localStorage.setItem('chatRoomVideoInfo', JSON.stringify(params));
+        }
+
+        startChat({
+          id: chatRoomId,
+          avatar: "1f638",
+          name: event.data.name,
+          info: 'isVideo',
+          modelType: 'MCN',
+          context: [
+            {
+              id: "is_hidden_msg",
+              role: "user",
+              content: event.data.prompt,
+              date: new Date().toISOString(),
+            },
+            {
+              id: "is_hidden_msg",
+              role: "assistant",
+              content: event.data.desc,
+              date: "",
+            },
+            {
+              id: "pain-1",
+              role: "assistant",
+              content: '我是你的 AI 助手。关于这个文件，有什么问题都可以问我！',
+              date: "",
+            }
+          ],
+          modelConfig: {
+            model: "gemini-2.5-flash",
+            providerName: ServiceProvider.Google,
+            temperature: 1,
+            max_tokens: 2000,
+            presence_penalty: 0,
+            frequency_penalty: 0,
+            sendMemory: true,
+            historyMessageCount: 4,
+            compressMessageLengthThreshold: 1000,
+            top_p: useAppConfig.getState().modelConfig.top_p,
+            compressModel: useAppConfig.getState().modelConfig.compressModel,
+            compressProviderName: useAppConfig.getState().modelConfig.compressProviderName,
+            enableInjectSystemPrompts: useAppConfig.getState().modelConfig.enableInjectSystemPrompts,
+            template: useAppConfig.getState().modelConfig.template,
+            size: useAppConfig.getState().modelConfig.size,
+            quality: useAppConfig.getState().modelConfig.quality,
+            style: useAppConfig.getState().modelConfig.style,
           },
-          {
-            id: "is_hidden_msg",
-            role: "assistant",
-            content: event.data.desc,
-            date: "",
+          lang: "cn",
+          builtin: true,
+          createdAt: 1688899480537,
+        });
+      }
+
+      // 商品
+      if (event.data.isProduct) {
+        const chatRoomProductInfo = localStorage.getItem('chatRoomProductInfo');
+
+        if (chatRoomProductInfo) {
+          const params = JSON.parse(chatRoomProductInfo);
+          params[chatRoomId] = {
+            prodcutUrl: event.data.prodcutUrl
+          };
+
+          localStorage.setItem('chatRoomProductInfo', JSON.stringify(params));
+        } else {
+          const params: { [key: string]: { prodcutUrl: string } } = {};
+
+          params[chatRoomId] = {
+            prodcutUrl: event.data.prodcutUrl
+          };
+
+          localStorage.setItem('chatRoomProductInfo', JSON.stringify(params));
+        }
+
+        startChat({
+          id: chatRoomId,
+          avatar: "1f638",
+          info: 'isProduct',
+          name: event.data.name,
+          modelType: 'MCN',
+          context: [
+            {
+              id: "pain-0",
+              role: "user",
+              content: event.data.prompt,
+              date: new Date().toISOString(),
+            },
+            {
+              id: "pain-1",
+              role: "assistant",
+              content: event.data.desc,
+              date: "",
+            }
+          ],
+          modelConfig: {
+            model: "gemini-2.5-flash",
+            providerName: ServiceProvider.Google,
+            temperature: 1,
+            max_tokens: 2000,
+            presence_penalty: 0,
+            frequency_penalty: 0,
+            sendMemory: true,
+            historyMessageCount: 4,
+            compressMessageLengthThreshold: 1000,
+            top_p: useAppConfig.getState().modelConfig.top_p,
+            compressModel: useAppConfig.getState().modelConfig.compressModel,
+            compressProviderName: useAppConfig.getState().modelConfig.compressProviderName,
+            enableInjectSystemPrompts: useAppConfig.getState().modelConfig.enableInjectSystemPrompts,
+            template: useAppConfig.getState().modelConfig.template,
+            size: useAppConfig.getState().modelConfig.size,
+            quality: useAppConfig.getState().modelConfig.quality,
+            style: useAppConfig.getState().modelConfig.style,
           },
-          {
-            id: "pain-1",
-            role: "assistant",
-            content: '我是你的 AI 助手。关于这个文件，有什么问题都可以问我！',
-            date: "",
-          }
-        ],
-        modelConfig: {
-          model: "gemini-2.5-flash",
-          providerName: ServiceProvider.Google,
-          temperature: 1,
-          max_tokens: 2000,
-          presence_penalty: 0,
-          frequency_penalty: 0,
-          sendMemory: true,
-          historyMessageCount: 4,
-          compressMessageLengthThreshold: 1000,
-          top_p: useAppConfig.getState().modelConfig.top_p,
-          compressModel: useAppConfig.getState().modelConfig.compressModel,
-          compressProviderName: useAppConfig.getState().modelConfig.compressProviderName,
-          enableInjectSystemPrompts: useAppConfig.getState().modelConfig.enableInjectSystemPrompts,
-          template: useAppConfig.getState().modelConfig.template,
-          size: useAppConfig.getState().modelConfig.size,
-          quality: useAppConfig.getState().modelConfig.quality,
-          style: useAppConfig.getState().modelConfig.style,
-        },
-        lang: "cn",
-        builtin: true,
-        createdAt: 1688899480537,
-      });
+          lang: "cn",
+          builtin: true,
+          createdAt: 1688899480537,
+        });
+      }
     }
 
     count = 1;
@@ -249,6 +322,19 @@ export function ChatList(props: { narrow?: boolean }) {
                     (!props.narrow && !isMobileScreen) ||
                     (await showConfirm(Locale.Home.DeleteChat))
                   ) {
+                    console.log('delete chat room', item.id);
+                    const chatRoomVideoInfo = localStorage.getItem('chatRoomVideoInfo');
+
+                    if (chatRoomVideoInfo) {
+                      const params = JSON.parse(chatRoomVideoInfo);
+
+                      if (params[item.topic]) {
+                        delete params[item.topic];
+
+                        localStorage.setItem('chatRoomVideoInfo', JSON.stringify(params));
+                      }
+                    }
+
                     chatStore.deleteSession(i);
                   }
                 }}

@@ -11,6 +11,9 @@
 .window-header-title {
   max-width: calc(100% - 100px);
   overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
 
   .window-header-main-title {
     font-size: 20px;
@@ -33,4 +36,19 @@
 
 .window-action-button:not(:first-child) {
   margin-left: 10px;
+}
+
+.video-preview {
+  width: 80px;
+  flex-shrink: 0;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
 }

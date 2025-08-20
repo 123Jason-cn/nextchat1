@@ -126,7 +126,6 @@ import { getModelProvider } from "../utils/model";
 import { RealtimeChat } from "@/app/components/realtime-chat";
 import clsx from "clsx";
 import { getAvailableClientsCount, isMcpEnabled } from "../mcp/actions";
-import { any } from "zod";
 
 const localStorage = safeLocalStorage();
 
@@ -1762,7 +1761,30 @@ function _Chat() {
     };
   }, [messages, chatStore, navigate, session]);
 
+  console.log('session ', session)
+
   const [showChatSidePanel, setShowChatSidePanel] = useState(false);
+
+  const chatRoomVideoInfo = localStorage.getItem('chatRoomVideoInfo');
+
+  let videoUrl = '';
+
+  if (session.mask.info === 'isVideo') {
+    if (chatRoomVideoInfo) {
+      const params = JSON.parse(chatRoomVideoInfo);
+      videoUrl = params[session.mask.id]?.videoUrl;
+    }
+  }
+
+  let prodcutUrl = '';
+  const chatRoomProductInfo = localStorage.getItem('chatRoomProductInfo');
+
+  if (session.mask.info === 'isProduct') {
+    if (chatRoomProductInfo) {
+      const params = JSON.parse(chatRoomProductInfo);
+      prodcutUrl = params[session.mask.id]?.prodcutUrl;
+    }
+  }
 
   return (
     <>
@@ -1785,17 +1807,43 @@ function _Chat() {
             <div
               className={clsx("window-header-title", styles["chat-body-title"])}
             >
-              <div
-                className={clsx(
-                  "window-header-main-title",
-                  styles["chat-body-main-title"],
-                )}
-                onClickCapture={() => setIsEditingMessage(true)}
-              >
-                {!session.topic ? DEFAULT_TOPIC : session.topic}
-              </div>
-              <div className="window-header-sub-title">
-                {Locale.Chat.SubTitle(session.messages.length)}
+              {
+                videoUrl && (
+                  <div className="video-preview">
+                    <img src={videoUrl+'?x-oss-process=video/snapshot,t_0,f_jpg,w_0,h_0'} alt="video" className="" />
+
+                    <div
+                      className="video-preview-play"
+                      onClick={() => {}}
+                    />
+                  </div>
+                )
+              }
+              {
+                prodcutUrl && (
+                  <div className="video-preview">
+                    <img src={prodcutUrl} alt="video" className="" />
+
+                    <div
+                      className="video-preview-play"
+                      onClick={() => {}}
+                    />
+                  </div>
+                )
+              }
+              <div>
+                <div
+                  className={clsx(
+                    "window-header-main-title",
+                    styles["chat-body-main-title"],
+                  )}
+                  onClickCapture={() => setIsEditingMessage(true)}
+                >
+                  {!session.topic ? DEFAULT_TOPIC : session.topic}
+                </div>
+                <div className="window-header-sub-title">
+                  {Locale.Chat.SubTitle(session.messages.length)}
+                </div>
               </div>
             </div>
             <div className="window-actions">
