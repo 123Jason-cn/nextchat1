@@ -196,7 +196,7 @@ export function ChatList(props: { narrow?: boolean }) {
             {
               id: "pain-1",
               role: "assistant",
-              content: '我是你的 AI 助手。关于这个文件，有什么问题都可以问我！',
+              content: event.data.tips,
               date: "",
             }
           ],
