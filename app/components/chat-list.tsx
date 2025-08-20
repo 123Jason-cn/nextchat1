@@ -196,7 +196,7 @@ export function ChatList(props: { narrow?: boolean }) {
             {
               id: "pain-1",
               role: "assistant",
-              content: event.data.tips,
+              content: event.data.tips || '',
               date: "",
             }
           ],
