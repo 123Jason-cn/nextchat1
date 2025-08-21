@@ -302,7 +302,7 @@ export function SideBar(props: { className?: string }) {
       {...props}
     >
       <SideBarHeader
-        title="DeepSeek"
+        title="西瓜创想"
         subTitle={currentModelName}
         // logo={<ChatGptIcon />}
         shouldNarrow={shouldNarrow}
