@@ -1877,6 +1877,7 @@ export function Settings() {
           <ModelConfigList
             modelConfig={config.modelConfig}
             updateConfig={(updater) => {
+              console.log('config ', config);
               const modelConfig = { ...config.modelConfig };
               updater(modelConfig);
               config.update((config) => (config.modelConfig = modelConfig));

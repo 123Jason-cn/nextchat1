@@ -109,10 +109,19 @@ const ACCESS_CODES = (function getAccessCodes(): Set<string> {
   }
 })();
 
+// 生成安全的随机整数
+function getSecureRandomInt(min: number, max: number) {
+  const range = max - min + 1;
+  const bytes = new Uint32Array(1);
+  const randomValue = crypto.getRandomValues(bytes)[0];
+  return min + (randomValue % range);
+}
+
 function getApiKey(keys?: string) {
   const apiKeyEnvVar = keys ?? "";
   const apiKeys = apiKeyEnvVar.split(",").map((v) => v.trim());
-  const randomIndex = Math.floor(Math.random() * apiKeys.length);
+  // const randomIndex = Math.floor(Math.random() * apiKeys.length);
+  const randomIndex = getSecureRandomInt(0, apiKeys.length - 1);
   const apiKey = apiKeys[randomIndex];
   if (apiKey) {
     console.log(

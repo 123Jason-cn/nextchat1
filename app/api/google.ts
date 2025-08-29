@@ -29,6 +29,8 @@ export async function handle(
 
   const apiKey = token ? token : serverConfig.googleApiKey;
 
+  console.log('api-key google ', apiKey)
+
   if (!apiKey) {
     return NextResponse.json(
       {
@@ -113,6 +115,8 @@ async function request(req: NextRequest, apiKey: string) {
     duplex: "half",
     signal: controller.signal,
   };
+
+  console.log('fetchOptions ', fetchOptions);
 
   try {
     const res = await fetch(fetchUrl, fetchOptions);

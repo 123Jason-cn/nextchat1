@@ -182,7 +182,8 @@ export function stream(
       responseText += remainText;
       console.log("[Response Animation] finished");
       if (responseText?.length === 0) {
-        options.onError?.(new Error("empty response from server"));
+        // options.onError?.(new Error("empty response from server"));
+        options.onError?.(new Error("当前模型使用人数较多，请切换模型后重试"));
       }
       return;
     }
@@ -408,7 +409,8 @@ export function streamWithThink(
       responseText += remainText;
       console.log("[Response Animation] finished");
       if (responseText?.length === 0) {
-        options.onError?.(new Error("empty response from server"));
+        // options.onError?.(new Error("empty response from server"));
+        options.onError?.(new Error("当前模型使用人数较多，请切换模型后重试"));
       }
       return;
     }

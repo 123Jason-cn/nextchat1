@@ -63,6 +63,8 @@ import {
   usePluginStore,
 } from "../store";
 
+import { Radio } from 'antd';
+
 import {
   autoGrowTextArea,
   copyToClipboard,
@@ -719,7 +721,8 @@ export function ChatActions(props: {
           }}
         />
 
-        <ChatAction
+        {/* 将模型改为直接选择，不弹框 */}
+        {/* <ChatAction
           onClick={() => setShowModelSelector(true)}
           text={currentModelName}
           icon={<RobotIcon />}
@@ -758,7 +761,7 @@ export function ChatActions(props: {
               }
             }}
           />
-        )}
+        )} */}
 
         {supportsCustomSize(currentModel) && (
           <ChatAction
@@ -841,7 +844,7 @@ export function ChatActions(props: {
           />
         )}
 
-        {showPlugins(currentProviderName, currentModel) && (
+        {/* {showPlugins(currentProviderName, currentModel) && (
           <ChatAction
             onClick={() => {
               if (pluginStore.getAll().length == 0) {
@@ -869,15 +872,50 @@ export function ChatActions(props: {
               });
             }}
           />
-        )}
+        )} */}
 
-        {!isMobileScreen && (
+        {isMobileScreen && (
           <ChatAction
             onClick={() => props.setShowShortcutKeyModal(true)}
             text={Locale.Chat.ShortcutKey.Title}
             icon={<ShortcutkeyIcon />}
           />
         )}
+
+        <div style={{ marginLeft: '20px' }}>
+          <Radio.Group
+            value={`${currentModel}@${currentProviderName}`}
+            options={
+              models.map((m) => ({
+                label: `${m.displayName}`,
+                value: `${m.name}@${m?.provider?.providerName}`,
+              }))
+            }
+            onChange={(s) => {
+              const value = s.target.value;
+              if (!value) return;
+              const [model, providerName] = getModelProvider(value);
+              chatStore.updateTargetSession(session, (session) => {
+                session.mask.modelConfig.model = model as ModelType;
+                session.mask.modelConfig.providerName =
+                  providerName as ServiceProvider;
+                session.mask.syncGlobalConfig = false;
+              });
+              if (providerName == "ByteDance") {
+                const selectedModel = models.find(
+                  (m) =>
+                    m.name == model &&
+                    m?.provider?.providerName == providerName,
+                );
+                showToast(selectedModel?.displayName ?? "");
+              } else {
+                showToast(model);
+              }
+            }}
+          ></Radio.Group>
+        </div>
+
+        
         {!isMobileScreen && <MCPAction />}
 
         { isMiniFlg && (

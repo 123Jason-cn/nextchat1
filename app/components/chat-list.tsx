@@ -22,6 +22,8 @@ import { nanoid } from "nanoid";
 import clsx from "clsx";
 import { useAppConfig } from "../store/config";
 
+import { indexedDBStorage } from "@/app/utils/indexedDB-storage";
+
 export function ChatItem(props: {
   onClick?: () => void;
   onDelete?: () => void;
@@ -290,6 +292,25 @@ export function ChatList(props: { narrow?: boolean }) {
           createdAt: 1688899480537,
         });
       }
+    }
+
+    let changeMaskNum = localStorage.getItem('mask-num') || 0;
+
+    if (event.data.type === 'updateMask' && changeMaskNum == 0) {
+      indexedDBStorage.getItem('app-config')
+        .then(res => {
+          console.log('app-config ', JSON.parse(res || '{}'));
+          const config = JSON.parse(res || '{}');
+
+          if (config.state?.modelConfig?.max_tokens !== 512000) {
+            indexedDBStorage.removeItem('app-config');
+
+            window.location.reload();
+          }
+        })
+      changeMaskNum++;
+
+      localStorage.setItem('mask-num', changeMaskNum.toString());
     }
 
     count = 1;
