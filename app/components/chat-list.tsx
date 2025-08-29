@@ -266,6 +266,12 @@ export function ChatList(props: { narrow?: boolean }) {
               role: "assistant",
               content: event.data.desc,
               date: "",
+            },
+            {
+              id: "is_hidden_msg",
+              role: "assistant",
+              content: event.data.summary || '',
+              date: "",
             }
           ],
           modelConfig: {
