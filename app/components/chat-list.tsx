@@ -142,8 +142,9 @@ export function ChatList(props: { narrow?: boolean }) {
   }, '*');
 
   window.onmessage = (event) => {
-    console.log('list onmessage ', event);
     if (event.data.isChatList && count === 0) {
+      console.log('list onmessage ', event);
+      
       navigate(Path.NewChat);
 
       const startChat = (mask?: Mask) => {
@@ -256,7 +257,7 @@ export function ChatList(props: { narrow?: boolean }) {
           modelType: 'MCN',
           context: [
             {
-              id: "pain-0",
+              id: "is_hidden_msg",
               role: "user",
               content: event.data.prompt,
               date: new Date().toISOString(),
@@ -265,12 +266,6 @@ export function ChatList(props: { narrow?: boolean }) {
               id: "pain-1",
               role: "assistant",
               content: event.data.desc,
-              date: "",
-            },
-            {
-              id: "is_hidden_msg",
-              role: "assistant",
-              content: event.data.summary || '',
               date: "",
             }
           ],
