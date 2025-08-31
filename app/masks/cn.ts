@@ -475,7 +475,7 @@ export const CN_MASKS: BuiltinMask[] = [
       },
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 1,
       max_tokens: 2000,
       presence_penalty: 0,
@@ -538,7 +538,7 @@ export const CN_MASKS: BuiltinMask[] = [
       },
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 1,
       max_tokens: 2000,
       presence_penalty: 0,
@@ -594,7 +594,7 @@ export const CN_MASKS: BuiltinMask[] = [
       },
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 1,
       max_tokens: 2000,
       presence_penalty: 0,
@@ -639,7 +639,7 @@ export const CN_MASKS: BuiltinMask[] = [
       },
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 0.7,
       max_tokens: 1500,
       presence_penalty: 0,
@@ -692,7 +692,7 @@ Emoji使用（emoji表情要和内容相吻合，不吻合的不要强加emoji�
       }
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 1,
       max_tokens: 2000,
       presence_penalty: 0,
@@ -749,7 +749,7 @@ Emoji使用（emoji表情要和内容相吻合，不吻合的不要强加emoji�
       }
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 1,
       max_tokens: 2000,
       presence_penalty: 0,
@@ -786,7 +786,7 @@ Emoji使用（emoji表情要和内容相吻合，不吻合的不要强加emoji�
       }
     ],
     modelConfig: {
-      model: "deepseek-r1",
+      model: "gemini-2.5.flash",
       temperature: 1,
       max_tokens: 2000,
       presence_penalty: 0,

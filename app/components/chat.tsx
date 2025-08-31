@@ -1799,8 +1799,6 @@ function _Chat() {
     };
   }, [messages, chatStore, navigate, session]);
 
-  console.log('session ', session)
-
   const [showChatSidePanel, setShowChatSidePanel] = useState(false);
 
   const chatRoomVideoInfo = localStorage.getItem('chatRoomVideoInfo');

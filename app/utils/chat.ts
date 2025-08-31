@@ -12,6 +12,11 @@ import {
 import { prettyObject } from "./format";
 import { fetch as tauriFetch } from "./stream";
 
+import { getModelProvider } from "./model";
+import { useChatStore, ModelType } from "../store";
+import { ServiceProvider } from "../constant";
+import { showToast } from "../components/ui-lib";
+
 export function compressImage(file: Blob, maxSize: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -176,6 +181,9 @@ export function stream(
   let runTools: any[] = [];
   let responseRes: Response;
 
+  const chatStore = useChatStore();
+  const session = chatStore.currentSession();
+
   // animate response to make it looks smooth
   function animateResponseText() {
     if (finished || controller.signal.aborted) {
@@ -183,6 +191,18 @@ export function stream(
       console.log("[Response Animation] finished");
       if (responseText?.length === 0) {
         // options.onError?.(new Error("empty response from server"));
+
+        const value = 'deepseek-v3@DeepSeek';
+        
+        const [model, providerName] = getModelProvider(value);
+        chatStore.updateTargetSession(session, (session) => {
+          session.mask.modelConfig.model = model as ModelType;
+          session.mask.modelConfig.providerName =
+            providerName as ServiceProvider;
+          session.mask.syncGlobalConfig = false;
+        });
+        showToast(model);
+        
         options.onError?.(new Error("当前模型使用人数较多，请切换模型后重试"));
       }
       return;
