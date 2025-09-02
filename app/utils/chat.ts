@@ -173,6 +173,7 @@ export function stream(
     toolCallResult: any[],
   ) => void,
   options: any,
+  chatStore: ReturnType<typeof useChatStore>
 ) {
   let responseText = "";
   let remainText = "";
@@ -181,7 +182,6 @@ export function stream(
   let runTools: any[] = [];
   let responseRes: Response;
 
-  const chatStore = useChatStore();
   const session = chatStore.currentSession();
 
   // animate response to make it looks smooth

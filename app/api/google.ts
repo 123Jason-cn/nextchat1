@@ -3,7 +3,6 @@ import { auth } from "./auth";
 import { getServerSideConfig } from "@/app/config/server";
 import { ApiPath, GEMINI_BASE_URL, ModelProvider } from "@/app/constant";
 import { prettyObject } from "@/app/utils/format";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const serverConfig = getServerSideConfig();
 
@@ -43,12 +42,8 @@ export async function handle(
       },
     );
   }
-
-  const models = params.path[params.path.length - 1].split(':')[0];
-  console.log('[Google Models] ', params.path, models)
-
   try {
-    const response = await request(req, apiKey, models);
+    const response = await request(req, apiKey);
     return response;
   } catch (e) {
     console.error("[Google] ", e);
@@ -75,7 +70,7 @@ export const preferredRegion = [
   "syd1",
 ];
 
-async function request(req: NextRequest, apiKey: string, models: string) {
+async function request(req: NextRequest, apiKey: string) {
   const controller = new AbortController();
 
   let baseUrl = serverConfig.googleUrl || GEMINI_BASE_URL;
@@ -93,58 +88,50 @@ async function request(req: NextRequest, apiKey: string, models: string) {
   console.log("[Proxy] ", path);
   console.log("[Base Url]", baseUrl);
 
-  // Using @google/generative-ai official API
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: models });
+  const timeoutId = setTimeout(
+    () => {
+      controller.abort();
+    },
+    10 * 60 * 1000,
+  );
+  const fetchUrl = `${baseUrl}${path}${
+    req?.nextUrl?.searchParams?.get("alt") === "sse" ? "?alt=sse" : ""
+  }`;
 
-  const { contents = [] } = (await req.json()) as { contents: any[] };
+  console.log("[Fetch Url] ", fetchUrl);
+  const fetchOptions: RequestInit = {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "x-goog-api-key":
+        req.headers.get("x-goog-api-key") ||
+        (req.headers.get("Authorization") ?? "").replace("Bearer ", ""),
+    },
+    method: req.method,
+    body: req.body,
+    // to fix #2485: https://stackoverflow.com/questions/55920957/cloudflare-worker-typeerror-one-time-use-body
+    redirect: "manual",
+    // @ts-ignore
+    duplex: "half",
+    signal: controller.signal,
+  };
 
-  console.log('[Google Gemini API Contents] ', contents)
+  console.log('fetchOptions ', fetchOptions);
 
   try {
-    const result = await model.generateContentStream({ contents });
-    console.log('[Google Gemini API Result] ', result)
-    const responseStream = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of result.stream) {
-          const chunkText = chunk.text();
-          // Format as SSE
-          const openaiChunk = {
-            id: `chatcmpl-${Date.now()}`,
-            object: "chat.completion.chunk",
-            created: Date.now(),
-            model: models,
-            choices: [
-              {
-                delta: {
-                  content: chunkText,
-                },
-                index: 0,
-                finish_reason: null,
-              },
-            ],
-          };
-          controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
-        }
-        controller.close();
-      },
-    });
+    const res = await fetch(fetchUrl, fetchOptions);
+    // to prevent browser prompt for credentials
+    const newHeaders = new Headers(res.headers);
+    newHeaders.delete("www-authenticate");
+    // to disable nginx buffering
+    newHeaders.set("X-Accel-Buffering", "no");
 
-    return new Response(responseStream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        // to prevent browser prompt for credentials
-        "www-authenticate": "", // Delete this header
-        // to disable nginx buffering
-        "X-Accel-Buffering": "no",
-      },
-      status: 200,
-      statusText: "OK",
+    return new Response(res.body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: newHeaders,
     });
-  } catch (e) {
-    console.error("[Google API Error] ", e);
-    throw e; // Re-throw the error to be caught by the handle function
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

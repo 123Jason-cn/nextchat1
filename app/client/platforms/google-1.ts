@@ -28,10 +28,85 @@ import { preProcessImageContent } from "@/app/utils/chat";
 import { nanoid } from "nanoid";
 import { RequestPayload } from "./openai";
 import { fetch } from "@/app/utils/stream";
+import { create } from "zustand";
+
+function openaiParseSSE(text: string, runTools: ChatMessageTool[]): string | undefined {
+  const chunkJson = JSON.parse(text);
+  const choices = chunkJson.choices;
+  const delta = choices?.at(0)?.delta;
+
+  if (delta?.content) {
+    return delta.content;
+  } else if (delta?.tool_calls?.length > 0) {
+    for (const toolCall of delta.tool_calls) {
+      runTools.push({
+        id: nanoid(),
+        type: "function",
+        function: {
+          name: toolCall.function.name,
+          arguments: toolCall.function.arguments,
+        },
+      });
+    }
+  }
+  return undefined;
+}
+
+function processToolMessage(
+  requestPayload: RequestPayload,
+  toolCallMessage: any,
+  toolCallResult: any[],
+) {
+  // @ts-ignore
+  requestPayload?.contents?.splice(
+    // @ts-ignore
+    requestPayload?.contents?.length,
+    0,
+    {
+      role: "model",
+      parts: toolCallMessage.tool_calls.map(
+        (tool: ChatMessageTool) => ({
+          functionCall: {
+            name: tool?.function?.name,
+            args: JSON.parse(tool?.function?.arguments as string),
+          },
+        }),
+      ),
+    },
+    // @ts-ignore
+    ...toolCallResult.map((result) => ({
+      role: "function",
+      parts: [
+        {
+          functionResponse: {
+            name: result.name,
+            response: {
+              name: result.name,
+              content: result.content, // TODO just text content...
+            },
+          },
+        },
+      ],
+    })),
+  );
+}
+
+interface GeminiApiState {
+  getAccessState: typeof useAccessStore.getState;
+  getAppConfigState: typeof useAppConfig.getState;
+  getChatStoreState: typeof useChatStore.getState;
+  getPluginStoreState: typeof usePluginStore.getState;
+}
 
 export class GeminiProApi implements LLMApi {
+  private readonly getState: GeminiApiState;
+
+  constructor(getState: GeminiApiState) {
+    this.getState = getState;
+  }
+
   path(path: string, shouldStream = false): string {
-    const accessStore = useAccessStore.getState();
+    const accessStore = this.getState.getAccessState();
 
     let baseUrl = "";
     if (accessStore.useCustomConfig) {
@@ -50,39 +125,28 @@ export class GeminiProApi implements LLMApi {
     }
 
     console.log("[Proxy Endpoint] ", baseUrl, path);
+    console.log("[Google API] Final baseUrl: ", baseUrl);
+    console.log("[Google API] Final chatPath segment: ", path);
 
     let chatPath = [baseUrl, path].join("/");
     if (shouldStream) {
       chatPath += chatPath.includes("?") ? "&alt=sse" : "?alt=sse";
     }
+    console.log("[Google API] Constructed chatPath: ", chatPath);
 
     return chatPath;
   }
   extractMessage(res: any) {
     console.log("[Response] gemini-pro response: ", res);
 
-    const getTextFromParts = (parts: any[]) => {
-      if (!Array.isArray(parts)) return "";
-
-      return parts
-        .map((part) => part?.text || "")
-        .filter((text) => text.trim() !== "")
-        .join("\n\n");
-    };
-
-    let content = "";
     if (Array.isArray(res)) {
-      res.map((item) => {
-        content += getTextFromParts(item?.candidates?.at(0)?.content?.parts);
-      });
+      // For Gemini, when not streaming, the response is an array
+      // of `GenerateContentResponse` objects.
+      // It's not clear how the API handles tool calls when not streaming.
+      // So we just take the last message in the array
+      return res.at(0)?.choices?.at(0)?.message?.content || (res.at(0) as any)?.error?.message || "";
     }
-
-    return (
-      getTextFromParts(res?.candidates?.at(0)?.content?.parts) ||
-      content || //getTextFromParts(res?.at(0)?.candidates?.at(0)?.content?.parts) ||
-      res?.error?.message ||
-      ""
-    );
+    return res?.choices?.at(0)?.message?.content || res.error?.message || "";
   }
   speech(options: SpeechOptions): Promise<ArrayBuffer> {
     throw new Error("Method not implemented.");
@@ -141,11 +205,11 @@ export class GeminiProApi implements LLMApi {
     //   options.onError?.(new Error("Multiturn chat is not enabled for models/gemini-pro-vision"));
     // }
 
-    const accessStore = useAccessStore.getState();
+    const accessStore = this.getState.getAccessState();
 
     const modelConfig = {
-      ...useAppConfig.getState().modelConfig,
-      ...useChatStore.getState().currentSession().mask.modelConfig,
+      ...this.getState.getAppConfigState().modelConfig,
+      ...this.getState.getChatStoreState().currentSession().mask.modelConfig,
       ...{
         model: options.config.model,
       },
@@ -206,10 +270,9 @@ export class GeminiProApi implements LLMApi {
       );
 
       if (shouldStream) {
-        const [tools, funcs] = usePluginStore
-          .getState()
+        const [tools, funcs] = this.getState.getPluginStoreState()
           .getAsTools(
-            useChatStore.getState().currentSession().mask?.plugin || [],
+            this.getState.getChatStoreState().currentSession().mask?.plugin || [],
           );
         return stream(
           chatPath,
@@ -222,70 +285,10 @@ export class GeminiProApi implements LLMApi {
             : [],
           funcs,
           controller,
-          // parseSSE
-          (text: string, runTools: ChatMessageTool[]) => {
-            // console.log("parseSSE", text, runTools);
-            const chunkJson = JSON.parse(text);
-
-            const functionCall = chunkJson?.candidates
-              ?.at(0)
-              ?.content.parts.at(0)?.functionCall;
-            if (functionCall) {
-              const { name, args } = functionCall;
-              runTools.push({
-                id: nanoid(),
-                type: "function",
-                function: {
-                  name,
-                  arguments: JSON.stringify(args), // utils.chat call function, using JSON.parse
-                },
-              });
-            }
-            return chunkJson?.candidates
-              ?.at(0)
-              ?.content.parts?.map((part: { text: string }) => part.text)
-              .join("\n\n");
-          },
-          // processToolMessage, include tool_calls message and tool call results
-          (
-            requestPayload: RequestPayload,
-            toolCallMessage: any,
-            toolCallResult: any[],
-          ) => {
-            // @ts-ignore
-            requestPayload?.contents?.splice(
-              // @ts-ignore
-              requestPayload?.contents?.length,
-              0,
-              {
-                role: "model",
-                parts: toolCallMessage.tool_calls.map(
-                  (tool: ChatMessageTool) => ({
-                    functionCall: {
-                      name: tool?.function?.name,
-                      args: JSON.parse(tool?.function?.arguments as string),
-                    },
-                  }),
-                ),
-              },
-              // @ts-ignore
-              ...toolCallResult.map((result) => ({
-                role: "function",
-                parts: [
-                  {
-                    functionResponse: {
-                      name: result.name,
-                      response: {
-                        name: result.name,
-                        content: result.content, // TODO just text content...
-                      },
-                    },
-                  },
-                ],
-              })),
-            );
-          },
+          openaiParseSSE, // parseSSE
+          processToolMessage, // Use the existing processToolMessage
           options,
+          this.getState.getChatStoreState(),
         );
       } else {
         const res = await fetch(chatPath, chatPayload);
